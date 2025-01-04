@@ -9,3 +9,4 @@ webcolors==24.11.1
 polars==1.18.0
 matplotlib==3.10.0
 seaborn==0.13.2
+scikit_learn==1.6.0
