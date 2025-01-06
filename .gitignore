@@ -1,3 +1,4 @@
 data/raw
 data_prep.ipynb
 __pycache__/
+.env
