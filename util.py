@@ -1,8 +1,139 @@
 import numpy as np
-import matplotlib.pyplot as plt
+import pandas as pd
 import seaborn as sns
 from sklearn.base import BaseEstimator, TransformerMixin
-import pandas as pd
+from sklearn.metrics import r2_score, root_mean_squared_error
+import matplotlib.pyplot as plt
+
+def plot_predictions(y_true: pd.Series, y_pred: np.ndarray, title: str = 'Model Predictions vs Ground Truth') -> None:
+    """
+    Plots the model predictions against the ground truth values.
+
+    Parameters:
+    y_true (pd.Series): The ground truth values.
+    y_pred (np.ndarray): The predicted values from the model.
+    title (str): The title of the plot. Default is 'Decision Tree: Model Predictions vs Ground Truth'.
+
+    Returns:
+    None
+    """
+    # Calculate R^2 and mean squared error
+    r2 = r2_score(y_true, y_pred)
+    mse = root_mean_squared_error(y_true, y_pred)
+    
+    # Create scatter plot
+    plt.figure(figsize=(6, 6))
+    plt.scatter(y_true, y_pred, alpha=0.3)
+    plt.plot([y_true.min(), y_true.max()], [y_true.min(), y_true.max()], 'r--', lw=2)
+    plt.xlabel('Ground Truth')
+    plt.ylabel('Predictions')
+    plt.title(title)
+    
+    # Add R^2 and root mean squared error to the plot with thousand separator
+    plt.text(0.05, 0.95, f'R^2: {r2:.2f}\nRMSE: {mse:,.2f}', transform=plt.gca().transAxes, 
+             fontsize=12, verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.5))
+    
+    # Add thousand separator to the axis labels
+    plt.gca().xaxis.set_major_formatter(plt.FuncFormatter(lambda x, loc: f'{int(x):,}'))
+    plt.gca().yaxis.set_major_formatter(plt.FuncFormatter(lambda y, loc: f'{int(y):,}'))
+    
+    plt.show()
+
+
+class ColumnDropper(BaseEstimator, TransformerMixin):
+    def __init__(self, columns):
+        self.columns = columns
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        return X.drop(columns=self.columns)
+
+
+class DataFrameSimpleImputer(BaseEstimator, TransformerMixin):
+    """
+    A custom imputer that wraps around SimpleImputer to ensure that the output is a pandas DataFrame.
+    """
+
+    def __init__(self, strategy='mean', fill_value=None):
+        self.strategy = strategy
+        self.fill_value = fill_value
+        self.imputer = SimpleImputer(strategy=strategy, fill_value=fill_value)
+
+    def fit(self, X: pd.DataFrame, y=None) -> 'DataFrameSimpleImputer':
+        """
+        Fits the imputer on the DataFrame.
+        """
+        self.imputer.fit(X)
+        return self
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        """
+        Transforms the DataFrame by imputing missing values and returns a DataFrame.
+        """
+        # Perform the imputation
+        imputed_array = self.imputer.transform(X)
+        
+        # Create a DataFrame with the same columns as the original DataFrame
+        return pd.DataFrame(imputed_array, columns=X.columns, index=X.index)
+    
+
+class VINReplacer(BaseEstimator, TransformerMixin):
+    """
+    A custom transformer for replacing missing values in the 'year' and 'manufacturer' columns
+    based on the VIN (Vehicle Identification Number) column.
+
+    This transformer uses predefined mappings to fill in missing values:
+    - 'year' is filled using the 10th character of the VIN mapped to a year.
+    - 'manufacturer' is filled using the first three characters of the VIN mapped to a manufacturer.
+
+    Attributes:
+        vin_to_year (dict): A dictionary mapping VIN characters to corresponding year values.
+        vin_to_manufacturer (dict): A dictionary mapping VIN characters to corresponding manufacturer values.
+    """
+
+    def __init__(self, vin_to_year: dict, vin_to_manufacturer: dict) -> None:
+        """
+        Initializes the VINValueReplacer with mappings for year and manufacturer.
+
+        Args:
+            vin_to_year (dict): Mapping from VIN characters to year values.
+            vin_to_manufacturer (dict): Mapping from VIN characters to manufacturer values.
+        """
+        self.vin_to_year = vin_to_year
+        self.vin_to_manufacturer = vin_to_manufacturer
+
+    def fit(self, X: pd.DataFrame, y: pd.Series = None) -> 'VINReplacer':
+        """
+        Fits the transformer to the data. This transformer does not require fitting.
+
+        Args:
+            X (pd.DataFrame): The input data.
+            y (pd.Series, optional): The target values (not used).
+
+        Returns:
+            VINReplacer: The fitted transformer.
+        """
+        return self
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        """
+        Transforms the input data by replacing missing values in 'year' and 'manufacturer'.
+
+        Args:
+            X (pd.DataFrame): The input data with potential missing values.
+
+        Returns:
+            pd.DataFrame: The transformed data with missing values replaced.
+        """
+        # Replace missing 'year' values
+        X.loc[X.year.isnull(), 'year'] = X.loc[X.year.isnull()].VIN.apply(lambda x: x[9]).map(self.vin_to_year)
+        # Replace missing 'manufacturer' values
+        X.loc[X.manufacturer.isnull() & X.VIN.notnull(), 'manufacturer'] = X.loc[X.manufacturer.isnull() & X.VIN.notnull()].VIN.apply(lambda x: x[0:3]).map(self.vin_to_manufacturer)
+        return X
+
+
 
 class ConditionalImputer(BaseEstimator, TransformerMixin):
     """
@@ -48,6 +179,7 @@ class ConditionalImputer(BaseEstimator, TransformerMixin):
         self : ConditionalImputer
             Fitted imputer instance.
         """
+
         if self.strategy == 'most_frequent':
             self.impute_values = (
                 X.groupby(self.condition_cols)[self.target_col]
@@ -78,6 +210,7 @@ class ConditionalImputer(BaseEstimator, TransformerMixin):
         pd.Series
             The target column with missing values filled.
         """
+
         # Create a copy to avoid modifying the original DataFrame
         imputed_column = X[self.target_col].copy()
         
@@ -91,8 +224,38 @@ class ConditionalImputer(BaseEstimator, TransformerMixin):
             
             # Fill in the imputed values where the target column is null
             imputed_column.loc[mask & imputed_column.isnull()] = value
+
+        X[self.target_col] = imputed_column
         
-        return imputed_column
+        return X
+    
+
+class SportColumn(BaseEstimator, TransformerMixin):
+    """
+    A custom transformer that calculates a sports package indicator from the model description.
+    """
+
+    def fit(self, X: pd.DataFrame, y=None) -> 'SportColumn':
+        return self
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        # Calculate the 'age' column
+        X['sport'] = X['model'].apply(lambda x: 'sport' in x.lower()).astype(int)
+        return X
+    
+
+class AgeCalculator(BaseEstimator, TransformerMixin):
+    """
+    A custom transformer that calculates the 'age' column based on 'posting_date' and 'year'.
+    """
+
+    def fit(self, X: pd.DataFrame, y=None) -> 'AgeCalculator':
+        return self
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        # Calculate the 'age' column
+        X['age'] = X['posting_date'].dt.year - X['year']
+        return X
 
 
 def plot_univariate(df, columns, hue=None, bins=50, bw_method=0.1, size=(20, 24), ncols=2, hspace=0.7, wspace=0.2, log_dict=None):
@@ -205,7 +368,7 @@ def plot_univariate(df, columns, hue=None, bins=50, bw_method=0.1, size=(20, 24)
             pass
         
 
-dict_vin2year = {
+vin_to_year = {
     'T' : 1996 ,
     'V' : 1997 ,
     'W' : 1998 ,
@@ -239,7 +402,7 @@ dict_vin2year = {
     }
 
 
-dict_vin2manufacturer = {
+vin_to_manufacturer = {
     'AAA': 'audi',
     'AAK': 'faw',
     'AAM': 'man',
