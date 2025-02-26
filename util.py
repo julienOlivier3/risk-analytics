@@ -1,9 +1,12 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from matplotlib.ticker import MaxNLocator
 from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.impute import SimpleImputer
 from sklearn.metrics import r2_score, root_mean_squared_error
-import matplotlib.pyplot as plt
+
 
 def plot_predictions(y_true: pd.Series, y_pred: np.ndarray, title: str = 'Model Predictions vs Ground Truth') -> None:
     """
@@ -20,7 +23,7 @@ def plot_predictions(y_true: pd.Series, y_pred: np.ndarray, title: str = 'Model 
     # Calculate R^2 and mean squared error
     r2 = r2_score(y_true, y_pred)
     mse = root_mean_squared_error(y_true, y_pred)
-    
+
     # Create scatter plot
     plt.figure(figsize=(6, 6))
     plt.scatter(y_true, y_pred, alpha=0.3)
@@ -28,15 +31,15 @@ def plot_predictions(y_true: pd.Series, y_pred: np.ndarray, title: str = 'Model 
     plt.xlabel('Ground Truth')
     plt.ylabel('Predictions')
     plt.title(title)
-    
+
     # Add R^2 and root mean squared error to the plot with thousand separator
     plt.text(0.05, 0.95, f'R^2: {r2:.2f}\nRMSE: {mse:,.2f}', transform=plt.gca().transAxes, 
              fontsize=12, verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.5))
-    
+
     # Add thousand separator to the axis labels
     plt.gca().xaxis.set_major_formatter(plt.FuncFormatter(lambda x, loc: f'{int(x):,}'))
     plt.gca().yaxis.set_major_formatter(plt.FuncFormatter(lambda y, loc: f'{int(y):,}'))
-    
+
     plt.show()
 
 
@@ -74,10 +77,10 @@ class DataFrameSimpleImputer(BaseEstimator, TransformerMixin):
         """
         # Perform the imputation
         imputed_array = self.imputer.transform(X)
-        
+
         # Create a DataFrame with the same columns as the original DataFrame
         return pd.DataFrame(imputed_array, columns=X.columns, index=X.index)
-    
+
 
 class VINReplacer(BaseEstimator, TransformerMixin):
     """
@@ -213,7 +216,7 @@ class ConditionalImputer(BaseEstimator, TransformerMixin):
 
         # Create a copy to avoid modifying the original DataFrame
         imputed_column = X[self.target_col].copy()
-        
+
         # Iterate over the groups and their corresponding impute values
         for group, value in self.impute_values.items():
             # Create a boolean mask for all condition columns
@@ -221,14 +224,14 @@ class ConditionalImputer(BaseEstimator, TransformerMixin):
                 mask = (X[self.condition_cols[0]] == group)
             else:
                 mask = (X[self.condition_cols] == group).all(axis=1)
-            
+
             # Fill in the imputed values where the target column is null
             imputed_column.loc[mask & imputed_column.isnull()] = value
 
         X[self.target_col] = imputed_column
-        
+
         return X
-    
+
 
 class SportColumn(BaseEstimator, TransformerMixin):
     """
@@ -242,7 +245,7 @@ class SportColumn(BaseEstimator, TransformerMixin):
         # Calculate the 'age' column
         X['sport'] = X['model'].apply(lambda x: 'sport' in x.lower()).astype(int)
         return X
-    
+
 
 class AgeCalculator(BaseEstimator, TransformerMixin):
     """
@@ -260,7 +263,7 @@ class AgeCalculator(BaseEstimator, TransformerMixin):
 
 def plot_univariate(df, columns, hue=None, bins=50, bw_method=0.1, size=(20, 24), ncols=2, hspace=0.7, wspace=0.2, log_dict=None):
     """Function to visualize columns in df. Visualization type depends on data type of the column.
-    
+
     Arguments
     ---------
     df : pandas.DataFrame
@@ -284,7 +287,7 @@ def plot_univariate(df, columns, hue=None, bins=50, bw_method=0.1, size=(20, 24)
     log_dict : dict
         Dictionary listing whether a column's visualization should be 
         displayed in log scale on the vertical axis
-            
+
 
     Returns
     -------
@@ -294,28 +297,28 @@ def plot_univariate(df, columns, hue=None, bins=50, bw_method=0.1, size=(20, 24)
 
     # Reduce df to relevant columns
     df = df[columns]
-    
+
     # Calculate the number of rows and columns for the grid
     num_cols = len(df.columns)
     num_rows = int(num_cols / ncols) + (num_cols % ncols)
-    
+
     # Create the subplots
     fig, axes = plt.subplots(nrows=num_rows, ncols=ncols, figsize=size)
 
     # Change the vertical and horizontal spacing between subplots
     plt.subplots_adjust(hspace=hspace, wspace=wspace)  
-    
+
     # Flatten the axes array for easier iteration
     axes = axes.flatten()
 
     # Do not display vertical axis in log scale as default
     logy = False
-    
+
     # Iterate over each column and plot accordingly
     for i, column in enumerate(df.columns):
         if log_dict!=None:
             logy=log_dict.get(column, False)
-            
+
         ax = axes[i]
         # Barplots for categorical features or integers with few distinct values
         if (df[column].dtype == 'int64' and df[column].value_counts().shape[0] < 40) or df[column].dtype == 'object' or df[column].dtype == '<M8[ns]':
@@ -362,43 +365,107 @@ def plot_univariate(df, columns, hue=None, bins=50, bw_method=0.1, size=(20, 24)
                 p.legend(title=hue)
                 if logy:
                     p.set_yscale("log")
-                                
+
         # For all other data types pass
         else:
             pass
-        
+
+
+
+def plot_time_series(df: pd.DataFrame, x: str, y_primary: list[str], y_secondary: list[str] = None, 
+                     title: str = None, xlabel: str = None, ylabel_primary: str = None, ylabel_secondary: str = None, figsize=(10, 6), nbins=5) -> None:
+    """Function to plot time series data.
+
+    Arguments
+    ---------
+    df : pd.DataFrame
+        DataFrame containing the time series data.
+    x : str
+        Column name to be used for the x-axis (typically the date or time column).
+    y_primary : list[str]
+        List of column names to be plotted on the primary y-axis.
+    y_secondary : list[str], optional
+        List of column names to be plotted on the secondary y-axis. Default is None.
+    title : str, optional
+        Title of the plot. Default is None.
+    xlabel : str, optional
+        Label for the x-axis. Default is None.
+    ylabel_primary : str, optional
+        Label for the primary y-axis. Default is None.
+    ylabel_secondary : str, optional
+        Label for the secondary y-axis. Default is None.
+    figsize : tuple, optional
+        Size of the figure. Default is (10, 6).
+    nbins : int, optional
+        Number of bins for the x-axis major locator. Default is 5.
+        This function does not return any value. It displays a plot of the time series data.
+
+    Returns
+    -------
+    Visualization of time series.
+
+    """
+
+    fig, ax1 = plt.subplots(figsize=figsize)
+
+    primary_colors = plt.cm.tab10.colors[:len(y_primary)]
+
+
+    # Plot the primary y-axis
+    for i, y in enumerate(y_primary):
+        ax1.plot(df[x], df[y], label=y, color=primary_colors[i])
+    ax1.set_xlabel('Date')
+    ax1.xaxis.set_major_locator(MaxNLocator(nbins=nbins))
+    ax1.set_ylabel(ylabel_primary)
+    ax1.set_xlabel(xlabel)
+    ax1.legend(loc='upper left')
+    ax1.yaxis.grid(True, linestyle='--')
+
+    # Plot the secondary y-axis
+    if y_secondary is not None:
+        secondary_colors = plt.cm.tab10.colors[len(y_primary):len(y_primary) + len(y_secondary)]
+        ax2 = ax1.twinx()
+        for i, y in enumerate(y_secondary):
+            ax2.plot(df[x], df[y], label=y, color=secondary_colors[i])
+        ax2.set_ylabel(ylabel_secondary)
+        ax2.legend(loc='upper right')
+
+    plt.title(title)
+    fig.autofmt_xdate()
+    plt.show()
+
 
 vin_to_year = {
-    'T' : 1996 ,
-    'V' : 1997 ,
-    'W' : 1998 ,
-    'X' : 1999 ,
-    'Y' : 2000 ,
-    '1' : 2001 ,
-    '2' : 2002 ,
-    '3' : 2003 ,
-    '4' : 2004 ,
-    '5' : 2005 ,
-    '6' : 2006 ,
-    '7' : 2007 ,
-    '8' : 2008 ,
-    '9' : 2009 ,
-    'A' : 2010 ,
-    'B' : 2011 ,
-    'C' : 2012 ,
-    'D' : 2013 ,
-    'E' : 2014 ,
-    'F' : 2015 ,
-    'G' : 2016 ,
-    'H' : 2017 ,
-    'J' : 2018 ,
-    'K' : 2019 ,
-    'L' : 2020 ,
-    'M' : 2021 ,
-    'N' : 2022 ,
-    'P' : 2023 ,
-    'R' : 2024 ,
-    'S' : 2025 
+    'T': 1996,
+    'V': 1997,
+    'W': 1998,
+    'X': 1999,
+    'Y': 2000,
+    '1': 2001,
+    '2': 2002,
+    '3': 2003,
+    '4': 2004,
+    '5': 2005,
+    '6': 2006,
+    '7': 2007,
+    '8': 2008,
+    '9': 2009,
+    'A': 2010,
+    'B': 2011,
+    'C': 2012,
+    'D': 2013,
+    'E': 2014,
+    'F': 2015,
+    'G': 2016,
+    'H': 2017,
+    'J': 2018,
+    'K': 2019,
+    'L': 2020,
+    'M': 2021,
+    'N': 2022,
+    'P': 2023,
+    'R': 2024,
+    'S': 2025
     }
 
 
