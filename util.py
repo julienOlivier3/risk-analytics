@@ -6,6 +6,35 @@ from matplotlib.ticker import MaxNLocator
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import r2_score, root_mean_squared_error
+from IPython.display import display, HTML
+from llama_index.core import Document
+
+
+def display_document_with_image_side_by_side(document: Document, image_path: str) -> None:
+    """
+    Display the text of a document and an image side by side.
+
+    Args:
+        doc_index (Document): llama_index Document.
+        image_path (str): Path to the image file to be displayed alongside the document text.
+    """
+    # Get the text of the document
+    document_text = document.text
+    
+    # Create HTML content
+    html_content = f"""
+    <div style="display: flex; align-items: flex-start;">
+        <div style="flex: 1; padding: 10px;">
+            <pre>{document_text}</pre>
+        </div>
+        <div style="flex: 1; padding: 10px;">
+            <img src="{image_path}" style="max-width: 100%; height: auto;">
+        </div>
+    </div>
+    """
+    
+    # Display the HTML content
+    display(HTML(html_content))
 
 
 def plot_predictions(y_true: pd.Series, y_pred: np.ndarray, title: str = 'Model Predictions vs Ground Truth') -> None:
