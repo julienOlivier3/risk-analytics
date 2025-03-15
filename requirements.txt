@@ -16,5 +16,6 @@ pymupdf==1.25.2
 scikit-learn==1.6.0
 seaborn==0.13.2
 statsmodels==0.14.4
+streamlit==1.43.2
 uri-template==1.3.0
 webcolors==24.11.1

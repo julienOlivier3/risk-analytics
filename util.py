@@ -80,7 +80,7 @@ class ColumnDropper(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
-        return X.drop(columns=self.columns)
+        return X.drop(columns=self.columns, errors='ignore')
 
 
 class DataFrameSimpleImputer(BaseEstimator, TransformerMixin):
