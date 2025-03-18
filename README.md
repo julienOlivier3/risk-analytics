@@ -7,7 +7,7 @@ This repository hosts the source code of the **Advanced Risk Analytics in Python
 
 ### Part 1: Introduction to Concepts and Methods
 
-#### Day 1: Machine Learning and Risk Modelling
+#### [Day 1: Machine Learning and Risk Modelling](day1_ml.ipynb)
 Participants will learn key ML concepts and algorithms, including:
 - **ML pipelines**
 - **Tree-based ML algorithms** (e.g., Regression Tree, Random Forest, Gradient Boosting)
@@ -15,7 +15,7 @@ Participants will learn key ML concepts and algorithms, including:
 
 The focus will be on practical programming exercises that assess credit and market risks using popular Python libraries such as **scikit-learn** and **pandas**. The goal is to understand how machine learning can add value in quantitatively assess risks that organizations operating under uncertainty are facing.
 
-#### Day 2: Natural Language Processing and Risk Assessment
+#### [Day 2: Natural Language Processing and Risk Assessment](day2_nlp.ipynb)
 This session will cover NLP techniques relevant to the insurance sector, including:
 - **Text Vectorization** (e.g., TF-IDF, word embeddings)
 - **Text Classification**
@@ -23,7 +23,7 @@ This session will cover NLP techniques relevant to the insurance sector, includi
 
 Participants will explore how these techniques can enhance policy processing and risk assessment of claims in the insurance industry.
 
-#### Day 3 (optional): Generative AI and Multi-Document Risk Agents
+#### [Day 3 (optional): Generative AI and Multi-Document Risk Agents](day3_genai.ipynb)
 On the third day, participants will explore the cutting-edge field of Generative AI (GenAI) and its applications in risk analytics. The focus will be on building a Multi-Document Risk Agent, a conversational AI system that allows users to interact with and extract insights from annual reports of publicly listed companies. This session will cover:
 - Introduction to **Generative AI** and **Large Language Models** (LLMs)
 - **Retrieval-Augmented Generation** (RAG)
