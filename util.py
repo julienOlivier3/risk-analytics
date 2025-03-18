@@ -2,12 +2,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from IPython.display import HTML, display
+from llama_index.core import Document
 from matplotlib.ticker import MaxNLocator
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import r2_score, root_mean_squared_error
-from IPython.display import display, HTML
-from llama_index.core import Document
 
 
 def display_document_with_image_side_by_side(document: Document, image_path: str) -> None:
@@ -286,7 +286,11 @@ class AgeCalculator(BaseEstimator, TransformerMixin):
 
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         # Calculate the 'age' column
-        X['age'] = X['posting_date'].dt.year - X['year']
+        try:
+            sales_year = X['posting_date'].dt.year
+        except:
+            sales_year = pd.to_datetime(X['posting_date']).dt.year
+        X['age'] = sales_year - X['year']
         return X
 
 
