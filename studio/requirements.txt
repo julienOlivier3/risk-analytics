@@ -1,0 +1,6 @@
+langchain_openai==0.3.10
+langgraph==0.3.20
+llama_index==0.12.15
+llama-index-llms-huggingface-api==0.3.1
+llama-index-llms-cohere==0.4.0
+llama-index-readers-smart-pdf-loader==0.3.0

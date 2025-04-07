@@ -8,6 +8,30 @@ from matplotlib.ticker import MaxNLocator
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import r2_score, root_mean_squared_error
+from llama_index.core import Document as LlamaDocument
+from langchain.schema import Document as LangchainDocument
+
+
+def convert_llama_to_langchain(llama_doc: LlamaDocument) -> LangchainDocument:
+    """
+    Convert a LlamaDocument to a LangchainDocument.
+
+    This function takes a LlamaDocument instance and converts it into a
+    LangchainDocument instance, preserving the document's ID, text content,
+    and metadata.
+
+    Parameters:
+    llama_doc (LlamaDocument): The LlamaDocument instance to be converted.
+
+    Returns:
+    LangchainDocument: A LangchainDocument instance containing the same
+                       content and metadata as the input LlamaDocument.
+    """
+    return LangchainDocument(
+        id=llama_doc.id_,
+        page_content=llama_doc.text,
+        metadata=llama_doc.metadata
+    )
 
 
 def display_document_with_image_side_by_side(document: Document, image_path: str) -> None:
