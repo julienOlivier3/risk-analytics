@@ -2,22 +2,23 @@ import operator
 from typing import Annotated, List, Optional
 
 from langchain_community.tools.tavily_search import TavilySearchResults
+from langchain_community.vectorstores import FAISS
 from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_openai import ChatOpenAI
 from langgraph.graph import END, START, MessagesState, StateGraph
 from langgraph.types import Send
-from llama_index.core import StorageContext, load_index_from_storage
-from llama_index.core.postprocessor import SimilarityPostprocessor
-from llama_index.core.vector_stores import (FilterOperator, MetadataFilter,
-                                            MetadataFilters)
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from pydantic import BaseModel, Field
 
 # Vector Storage
-vector_index = load_index_from_storage(
-    StorageContext.from_defaults(
-        persist_dir="./vector_index"
-    )
+faiss_vector_store = FAISS.load_local(
+    "./faiss_vector_store",
+    embeddings=HuggingFaceEmbeddings(
+        model_name="Snowflake/snowflake-arctic-embed-l-v2.0",
+        model_kwargs={'device': 'cpu'},
+        encode_kwargs={'normalize_embeddings': False}
+    ),
+    allow_dangerous_deserialization=True
 )
 
 # LLM
@@ -28,9 +29,9 @@ tavily_search = TavilySearchResults(max_results=2)
 
 dax_40 = [
     'adidas', 'airbus', 'allianz', 'basf', 'bayer', 'beiersdorf', 'bmw',
-    'brenntag', 'commerzbank', 'continental', 'daimler truck',
-    'deutsche bank', 'deutsche boerse', 'deutsche post',
-    'deutsche telekom', 'eon', 'fresenius', 'fresenius medical care',
+    'brenntag', 'commerzbank', 'continental', 'daimler-truck',
+    'deutsche-bank', 'deutsche-boerse', 'deutsche-post',
+    'deutsche-telekom', 'eon', 'fresenius', 'fresenius medical care',
     'hannover rück', 'heidelberg materials', 'henkel',
     'infineon technologies', 'mercedes benz', 'merck',
     'mtu', 'münchener rück', 'porsche', 'porsche automobil holding',
@@ -157,37 +158,29 @@ def web_agent(state: OverallState):
     return {"context": [formatted_search_docs]}
 
 
-def rag_agent(state: DocumentState, vector_index=vector_index):
+def rag_agent(state: DocumentState, vector_store=faiss_vector_store):
 
     company = state.get('company')
     topic = state.get('topic')
 
-    filters = MetadataFilters(
-        filters=[
-            MetadataFilter(key="company", operator=FilterOperator.EQ, value=company.name),
-        ]
-    )
+    context = vector_store.similarity_search(
+        query=topic.topic,
+        k=2,
+        filter={"company": company.name, "year": 2023})
 
-    retriever = vector_index.as_retriever(
-        filters=filters,
-        similarity_top_k=2,
-        embed_model=HuggingFaceEmbedding(model_name="Snowflake/snowflake-arctic-embed-l-v2.0"))
-
-    context = retriever.retrieve(topic.topic)
-    # filter nodes below certain similarity score
-    processor = SimilarityPostprocessor(similarity_cutoff=0.2)
-    filtered_context = processor.postprocess_nodes(context)
-
-    if len(filtered_context) == 0:
-        answer = f"""The annual report of {company.name} does not provide any information about the
-         topic '{topic.topic}'."""
+    if len(context) == 0:
+        answer = f"""
+            The annual report of {company.name} does not provide any information about the
+            topic '{topic.topic}'."""
 
     else:
         system_message = single_answer_generation_instruction.format(
-            company=company.name, topic=topic.topic, context=' \n '.join([node.text for node in filtered_context]))
+            company=company.name,
+            topic=topic.topic,
+            context=' \n '.join([node.page_content for node in context]))
         answer = llm.invoke(system_message).content
 
-    return {"retrievals": [filtered_context], "context": [answer]}
+    return {"retrievals": [context], "context": [answer]}
 
 
 def create_answer(state: OverallState):
@@ -195,7 +188,9 @@ def create_answer(state: OverallState):
     messages = state.get('messages')
     context = state.get('context', None)
 
-    system_message = final_answer_generation_instruction.format(message=messages[-1].content, context='\n\n'.join(context))
+    system_message = final_answer_generation_instruction.format(
+        message=messages[-1].content,
+        context='\n\n'.join(context))
     final_answer = llm.invoke(system_message).content
 
     # Return the company-specific answer

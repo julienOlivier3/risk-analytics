@@ -1,15 +1,156 @@
+import re
+from typing import Dict, List, Optional, Union
+
+import faiss
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
 from IPython.display import HTML, display
+from langchain.schema import Document as LangchainDocument
+from langchain_community.docstore.in_memory import InMemoryDocstore
+from langchain_community.vectorstores import FAISS
+from langchain_huggingface import HuggingFaceEmbeddings
 from llama_index.core import Document
+from llama_index.core import Document as LlamaDocument
+from llama_index.core import SimpleDirectoryReader
+from llama_index.core.node_parser import (SemanticSplitterNodeParser,
+                                          SentenceSplitter)
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from matplotlib.ticker import MaxNLocator
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import r2_score, root_mean_squared_error
-from llama_index.core import Document as LlamaDocument
-from langchain.schema import Document as LangchainDocument
+
+
+async def vectorize_chunks(
+    chunks: List[Document],
+    embed_model: str = "sentence-transformers/all-MiniLM-L6-v2",
+    device: str = 'cpu',
+    normalize_embeddings: bool = False) -> FAISS:
+
+    embed_model = HuggingFaceEmbeddings(
+        model_name=embed_model,
+        model_kwargs={'device': device},
+        encode_kwargs={'normalize_embeddings': normalize_embeddings}
+    )
+
+    index = faiss.IndexFlatL2(len(embed_model.embed_query("hello world")))
+
+    vector_store = FAISS(
+        embedding_function=embed_model,
+        index=index,
+        docstore=InMemoryDocstore(),
+        index_to_docstore_id={}
+    )
+
+    await vector_store.aadd_documents(documents=chunks)
+
+    return vector_store
+
+
+def chunk_document(
+    document: Document,
+    chunk_size: int = 512,
+    chunk_overlap: int = 50,
+    separator: str = ' ',
+    paragraph_separator: str = '\n\n\n',
+    semantic_chunking: bool = False,
+    buffer_size: int = 1,
+    breakpoint_percentile_threshold: int = 95,
+    embed_model: HuggingFaceEmbedding = HuggingFaceEmbedding(
+        model_name="Snowflake/snowflake-arctic-embed-l-v2.0")):
+
+    if not semantic_chunking:
+        splitter = SentenceSplitter(
+            separator=separator,
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+            paragraph_separator=paragraph_separator,
+            include_metadata=True)
+    else:
+        splitter = SemanticSplitterNodeParser(
+            buffer_size=buffer_size,
+            breakpoint_percentile_threshold=breakpoint_percentile_threshold,
+            embed_model=embed_model)
+
+    chunks = splitter.get_nodes_from_documents(document)
+
+    return chunks
+
+
+def parse_document(
+        report_file_path: str,
+        pre_process_dict: Optional[Dict[str, Dict[str, Union[range, str]]]] = None,
+        company: str = None,
+        year: int = None) -> List[Document]:
+    """
+    Pre-processes a document by loading it from the specified file path, optionally removing specified strings,
+    and returning a list of Document objects containing the processed text.
+
+    Args:
+        report_file_path (str): The path to the report file to be processed.
+        pre_process_dict (Optional[Dict[str, Dict[str, Union[range, str]]]]):
+            A dictionary containing optional parameters for the pre-processing of different entities.
+            Each key corresponds to an entity (e.g., 'adidas', 'allianz') and maps to another dictionary with:
+            - 'pages' (range): A range of page indices to process.
+            - 'string_to_remove' (str): A regex pattern for strings to be removed from the document text.
+
+    Returns:
+        List[Document]: A list containing a single Document object with the processed text.
+    """
+
+    documents = SimpleDirectoryReader(input_files=[report_file_path]).load_data(show_progress=False)
+
+    overall_text = ""
+
+    if pre_process_dict is not None:
+        string_to_remove = pre_process_dict.get('string_to_remove')
+        pages = pre_process_dict.get('pages', range(0, len(documents), 1))  # Default to all pages if not specified
+
+        for page in pages:
+            document = documents[page]
+            text = document.text
+            if string_to_remove is not None:
+                text = re.sub(string_to_remove, "", text)
+            overall_text = "\n".join([overall_text, text])
+    else:
+        # If no pre_process_dict is provided, process all pages
+        for page in range(len(documents)):
+            document = documents[page]
+            overall_text = "\n".join([overall_text, document.text])
+
+    documents = [Document(text=overall_text, metadata={'company': company, 'year': year})]
+
+    return documents
+
+
+pre_process_dict = {
+    "adidas": {
+        "pages": range(165, 187, 1),
+        "string_to_remove": "1 2 3 4 5 \nT O  O U R SHA REHO L D ERS  GRO U P  MAN A GEMEN T  REP O RT – \nO U R CO MPA N Y \nGRO U P  MAN A GEMEN T  REP O RT – \nF I N A N CI AL  REVI EW  \nCO N SO L I DA T ED  FI N AN CI A L \nST A T EMEN T S \nA D D I T I ON A L I N FO RMA T I ON \n \n\\d{1,3} \n    \n    \n A N N U A L  R E P O R T  2 0 2 3",
+    },
+    "allianz": {
+        "pages": range(21, 37, 1),
+        "string_to_remove": "B _ Management Report of Allianz SE \n\\d{1,3} Annual Report 2023 – Allianz SE \n"
+    },
+    "basf": {
+        "pages": range(172, 183, 1),
+        "string_to_remove": "Combined Management’s Report – Opportunities and Risks\n"
+    },
+    "bayer": {
+        "pages": range(99, 116, 1),
+        "string_to_remove": " \n \nBayer Annual Report 2023 A Combined Management Report\n3.2 Opportunity and Risk Report\n \\d{1,3}\n"
+    },
+    "beiersdorf": {
+        "pages": range(155, 166, 1),
+        "string_to_remove": " \n \nBeiersdorf Annual Report 2023 A Combined Management Report\n3.2 Opportunity and Risk Report\n \\d{1,3}\n"
+    },
+    "bmw": {
+        "pages": range(126, 142, 1),
+        "string_to_remove": "\\d{1,3} BMW Group Report 2023\\s+To Our Stakeholders\\s+Combined Management Report\\s+Group Financial Statements\\s+Responsibility Statement and Auditor’s Report\\s+Remuneration Report\\s+Other Information\\s+\n\\s+Risks and Opportunities\\s+\n"
+    }
+}
 
 
 def convert_llama_to_langchain(llama_doc: LlamaDocument) -> LangchainDocument:
@@ -44,7 +185,7 @@ def display_document_with_image_side_by_side(document: Document, image_path: str
     """
     # Get the text of the document
     document_text = document.text
-    
+
     # Create HTML content
     html_content = f"""
     <div style="display: flex; align-items: flex-start;">
@@ -56,7 +197,7 @@ def display_document_with_image_side_by_side(document: Document, image_path: str
         </div>
     </div>
     """
-    
+
     # Display the HTML content
     display(HTML(html_content))
 
@@ -86,7 +227,7 @@ def plot_predictions(y_true: pd.Series, y_pred: np.ndarray, title: str = 'Model 
     plt.title(title)
 
     # Add R^2 and root mean squared error to the plot with thousand separator
-    plt.text(0.05, 0.95, f'R^2: {r2:.2f}\nRMSE: {mse:,.2f}', transform=plt.gca().transAxes, 
+    plt.text(0.05, 0.95, f'R^2: {r2:.2f}\nRMSE: {mse:,.2f}', transform=plt.gca().transAxes,
              fontsize=12, verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.5))
 
     # Add thousand separator to the axis labels
@@ -184,16 +325,23 @@ class VINReplacer(BaseEstimator, TransformerMixin):
             pd.DataFrame: The transformed data with missing values replaced.
         """
         # Replace missing 'year' values
-        X.loc[X.year.isnull(), 'year'] = X.loc[X.year.isnull()].VIN.apply(lambda x: x[9]).map(self.vin_to_year)
-        # Replace missing 'manufacturer' values
-        X.loc[X.manufacturer.isnull() & X.VIN.notnull(), 'manufacturer'] = X.loc[X.manufacturer.isnull() & X.VIN.notnull()].VIN.apply(lambda x: x[0:3]).map(self.vin_to_manufacturer)
-        return X
+        missing_years = X.year.isnull()
+        X.loc[missing_years, 'year'] = X.loc[missing_years].VIN.apply(
+            lambda x: x[9]
+        ).map(self.vin_to_year)
 
+        # Replace missing 'manufacturer' values
+        missing_manufacturers = X.manufacturer.isnull() & X.VIN.notnull()
+        X.loc[missing_manufacturers, 'manufacturer'] = X.loc[missing_manufacturers].VIN.apply(
+            lambda x: x[0:3]
+        ).map(self.vin_to_manufacturer)
+
+        return X
 
 
 class ConditionalImputer(BaseEstimator, TransformerMixin):
     """
-    A custom imputer that fills missing values in a target column based on the most frequent 
+    A custom imputer that fills missing values in a target column based on the most frequent
     or mean value conditioned on one or more other columns.
 
     Parameters:
@@ -248,7 +396,7 @@ class ConditionalImputer(BaseEstimator, TransformerMixin):
                 .agg(lambda x: np.nanmean(x))
                 .to_dict()
             )
-        else: 
+        else:
             raise ValueError('Invalid strategy')
         return self
 
@@ -312,13 +460,23 @@ class AgeCalculator(BaseEstimator, TransformerMixin):
         # Calculate the 'age' column
         try:
             sales_year = X['posting_date'].dt.year
-        except:
+        except AttributeError:
             sales_year = pd.to_datetime(X['posting_date']).dt.year
         X['age'] = sales_year - X['year']
         return X
 
 
-def plot_univariate(df, columns, hue=None, bins=50, bw_method=0.1, size=(20, 24), ncols=2, hspace=0.7, wspace=0.2, log_dict=None):
+def plot_univariate(
+        df,
+        columns,
+        hue=None,
+        bins=50,
+        bw_method=0.1,
+        size=(20, 24),
+        ncols=2,
+        hspace=0.7,
+        wspace=0.2,
+        log_dict=None):
     """Function to visualize columns in df. Visualization type depends on data type of the column.
 
     Arguments
@@ -342,7 +500,7 @@ def plot_univariate(df, columns, hue=None, bins=50, bw_method=0.1, size=(20, 24)
     wspace : float
         Vertical space between subplots.
     log_dict : dict
-        Dictionary listing whether a column's visualization should be 
+        Dictionary listing whether a column's visualization should be
         displayed in log scale on the vertical axis
 
 
@@ -363,7 +521,7 @@ def plot_univariate(df, columns, hue=None, bins=50, bw_method=0.1, size=(20, 24)
     fig, axes = plt.subplots(nrows=num_rows, ncols=ncols, figsize=size)
 
     # Change the vertical and horizontal spacing between subplots
-    plt.subplots_adjust(hspace=hspace, wspace=wspace)  
+    plt.subplots_adjust(hspace=hspace, wspace=wspace)
 
     # Flatten the axes array for easier iteration
     axes = axes.flatten()
@@ -373,13 +531,13 @@ def plot_univariate(df, columns, hue=None, bins=50, bw_method=0.1, size=(20, 24)
 
     # Iterate over each column and plot accordingly
     for i, column in enumerate(df.columns):
-        if log_dict!=None:
-            logy=log_dict.get(column, False)
+        if log_dict is not None:
+            logy = log_dict.get(column, False)
 
         ax = axes[i]
         # Barplots for categorical features or integers with few distinct values
         if (df[column].dtype == 'int64' and df[column].value_counts().shape[0] < 40) or df[column].dtype == 'object' or df[column].dtype == '<M8[ns]':
-            if hue==None or hue==column:
+            if hue is None or hue == column:
                 temp = df[column].value_counts().sort_index()
                 if temp.shape[0] > 20:
                     fontsize = 'small'
@@ -400,21 +558,27 @@ def plot_univariate(df, columns, hue=None, bins=50, bw_method=0.1, size=(20, 24)
                 p.set_ylabel('Proportion')
                 p.set_xticks(p.get_xticks())
                 p.set_xticklabels(
-                    p.get_xticklabels(), 
-                    rotation=90, 
-                    horizontalalignment='center', 
+                    p.get_xticklabels(),
+                    rotation=90,
+                    horizontalalignment='center',
                     fontsize=fontsize)
                 if logy:
                     p.set_yscale("log")
 
         # Histograms for floats or integers with many distinct values
         elif (df[column].dtype == 'int64' and df[column].value_counts().shape[0] >= 10) or df[column].dtype == 'float64':
-            if hue==None:
+            if hue is None:
                 df[column].plot(kind='hist', ax=ax, bins=bins, title=column, logy=logy)
             else:
                 hue_groups = np.sort(df[hue].unique())
                 for hue_group in hue_groups:
-                    p = sns.kdeplot(data=df[df[hue] == hue_group], x=column, fill=True, label=hue_group, ax=ax, bw_method=bw_method)
+                    p = sns.kdeplot(
+                        data=df[df[hue] == hue_group],
+                        x=column,
+                        fill=True,
+                        label=hue_group,
+                        ax=ax,
+                        bw_method=bw_method)
                 # Add title and labels
                 p.set_title(column)
                 p.set_xlabel('')
@@ -428,9 +592,17 @@ def plot_univariate(df, columns, hue=None, bins=50, bw_method=0.1, size=(20, 24)
             pass
 
 
-
-def plot_time_series(df: pd.DataFrame, x: str, y_primary: list[str], y_secondary: list[str] = None, 
-                     title: str = None, xlabel: str = None, ylabel_primary: str = None, ylabel_secondary: str = None, figsize=(10, 6), nbins=5) -> None:
+def plot_time_series(
+        df: pd.DataFrame,
+        x: str,
+        y_primary: list[str],
+        y_secondary: list[str] = None,
+        title: str = None,
+        xlabel: str = None,
+        ylabel_primary: str = None,
+        ylabel_secondary: str = None,
+        figsize=(10, 6),
+        nbins=5) -> None:
     """Function to plot time series data.
 
     Arguments
@@ -466,7 +638,6 @@ def plot_time_series(df: pd.DataFrame, x: str, y_primary: list[str], y_secondary
     fig, ax1 = plt.subplots(figsize=figsize)
 
     primary_colors = plt.cm.tab10.colors[:len(y_primary)]
-
 
     # Plot the primary y-axis
     for i, y in enumerate(y_primary):
