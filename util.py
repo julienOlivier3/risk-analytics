@@ -1,5 +1,7 @@
+import os
 import re
-from typing import Dict, List, Optional, Union
+import subprocess
+from typing import Dict, List, Literal, Optional, Union
 
 import faiss
 import matplotlib.pyplot as plt
@@ -10,7 +12,11 @@ from IPython.display import HTML, display
 from langchain.schema import Document as LangchainDocument
 from langchain_community.docstore.in_memory import InMemoryDocstore
 from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_huggingface import (HuggingFaceEmbeddings,
+                                   HuggingFaceEndpointEmbeddings)
+from langchain_ollama import ChatOllama
+from langchain_openai import ChatOpenAI
+from langgraph.graph.state import CompiledStateGraph
 from llama_index.core import Document
 from llama_index.core import Document as LlamaDocument
 from llama_index.core import SimpleDirectoryReader
@@ -23,19 +29,154 @@ from sklearn.impute import SimpleImputer
 from sklearn.metrics import r2_score, root_mean_squared_error
 
 
+def print_graph_propagation(graph: CompiledStateGraph, query: str) -> None:
+    """
+    Prints the propagation of events in a graph based on a user query.
+
+    Parameters:
+    graph (object): An object representing the graph from which events are streamed.
+    query (str): The user query to filter the graph events.
+
+    Returns:
+    None: This function does not return a value; it prints output directly.
+    """
+    
+    print(f"User query: {query}")
+    print("\n-----------------\n")
+    print("Graph events:")
+    for event in graph.stream({"messages": query}):
+        print(event)
+    print("\n-----------------\n")
+    try:    
+        print(f"Answer: {event['generate_answer']['final_answer']}")
+    except KeyError:
+        print(f"Answer: {event['off_topic_response']['final_answer']}")
+
+
+def ollama_list() -> List[str]:
+    """
+    Run the 'ollama list' command to retrieve a list of available models.
+
+    Returns:
+        List[str]: A list of model names as strings.
+    """
+    # Run the ollama list command and capture the output
+    result = subprocess.run(["ollama", "list"], capture_output=True, text=True, check=True)
+    models = result.stdout.splitlines()  # Split the output into lines
+    return models
+
+
+def ollama_pull(model_name: str) -> None:
+    """
+    Pull a specified model using the 'ollama pull' command.
+
+    Args:
+        model_name (str): The name of the model to pull.
+
+    Returns:
+        None: This function does not return a value. It prints the result of the operation.
+
+    Raises:
+        subprocess.CalledProcessError: If the command fails to execute.
+    """
+    try:
+        # Run the ollama pull command
+        subprocess.run(["ollama", "pull", model_name], check=True)
+        print(f"Model '{model_name}' pulled successfully.")
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to pull model '{model_name}': {e}")
+
+
+def get_llm_model(
+        llm_type: Literal["openai", "ollama"] = "ollama",
+        model_name: str = "llama3.1:8b") -> Optional[ChatOpenAI | ChatOllama]:
+    """
+    Retrieve and load a language model based on the specified type.
+
+    Args:
+        llm_type (Literal["openai", "ollama"]): The type of language model to load.
+            Defaults to "ollama".
+        model_name (str): The name of the model to load. Defaults to "llama3-1:8b".
+
+    Returns:
+        Optional[ChatOpenAI | ChatOllama]: The loaded language model instance (either
+        ChatOpenAI or ChatOllama) if successful, or None if the model could not be loaded.
+
+    Raises:
+        ValueError: If the specified model name is not found in the available models.
+    """
+    if llm_type == "openai":
+        model = ChatOpenAI(model=model_name, temperature=0.0, api_key=os.getenv("OPENAI_API_KEY", None))
+        print(f"{model.model_name} model loaded.")
+        return model
+    else:
+        available_models = ollama_list()
+        available_models = [re.split(r'\s{2,}', x) for x in available_models]
+        df_available_models = pd.DataFrame(available_models[1:], columns=available_models[0])
+
+        if model_name in df_available_models['NAME'].values:
+            model = ChatOllama(model=model_name, temperature=0.0)
+            print(f"{model.model} model loaded.")
+            return model
+        else:
+            print(f"Model '{model_name}' not found. Pulling the model which may take a while...")
+            ollama_pull(model_name=model_name)
+            try:
+                model = ChatOllama(model=model_name, temperature=0.0)
+                print(f"'{model.name}' model loaded.")
+                return model
+            except Exception as e:
+                print(f"Failed to load model '{model_name}': {e}")
+                return None
+
+
 async def vectorize_chunks(
     chunks: List[Document],
-    embed_model: str = "sentence-transformers/all-MiniLM-L6-v2",
+    model_name: str = "Snowflake/snowflake-arctic-embed-l-v2.0",
     device: str = 'cpu',
-    normalize_embeddings: bool = False) -> FAISS:
+    inference_api: bool = True,
+    huggingfacehub_api_token: Optional[str] = None
+) -> FAISS:
+    """
+    Vectorizes a list of document chunks and stores them in a FAISS vector store.
+
+    This function takes a list of document chunks, converts them into vector embeddings
+    using a specified Hugging Face embedding model, and stores the embeddings in a FAISS
+    vector store. It supports both local embedding models and Hugging Face Inference API.
+
+    Args:
+        chunks (List[Document]): A list of document chunks to be vectorized.
+        model_name (str): The Hugging Face embedding model to use. Defaults to
+                           "Snowflake/snowflake-arctic-embed-l-v2.0".
+        device (str): The device to run the embedding model on ('cpu' or 'cuda'). Defaults to 'cpu'.
+        inference_api (bool): Whether to use the Hugging Face Inference API for embeddings.
+                              Defaults to True.
+        huggingfacehub_api_token (Optional[str]): The Hugging Face Hub API token for authentication.
+
+    Returns:
+        FAISS: A FAISS vector store containing the vectorized document chunks.
+    """
 
     embed_model = HuggingFaceEmbeddings(
-        model_name=embed_model,
-        model_kwargs={'device': device},
-        encode_kwargs={'normalize_embeddings': normalize_embeddings}
-    )
+            model_name=model_name,
+            model_kwargs={'device': device}
+        )
 
-    index = faiss.IndexFlatL2(len(embed_model.embed_query("hello world")))
+    embed_model_inference = HuggingFaceEndpointEmbeddings(
+            model=model_name,
+            model_kwargs={'device': device},
+            huggingfacehub_api_token=huggingfacehub_api_token
+        )
+
+    if inference_api:
+        try:
+            index = faiss.IndexFlatL2(len(embed_model_inference.embed_query("hello world")))
+            embed_model = embed_model_inference
+        except Exception as e:
+            print(f"Error initializing FAISS index: {e}. Switch to local model.")
+            index = faiss.IndexFlatL2(len(embed_model.embed_query("hello world")))
+    else:
+        index = faiss.IndexFlatL2(len(embed_model.embed_query("hello world")))
 
     vector_store = FAISS(
         embedding_function=embed_model,
