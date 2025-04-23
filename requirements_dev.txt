@@ -1,2 +1,3 @@
+jupyterlab_rise==0.43.1
 langgraph-cli==0.1.82
 pipdeptree==2.24.0
