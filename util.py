@@ -40,14 +40,14 @@ def print_graph_propagation(graph: CompiledStateGraph, query: str) -> None:
     Returns:
     None: This function does not return a value; it prints output directly.
     """
-    
+
     print(f"User query: {query}")
     print("\n-----------------\n")
     print("Graph events:")
     for event in graph.stream({"messages": query}):
         print(event)
     print("\n-----------------\n")
-    try:    
+    try:
         print(f"Answer: {event['generate_answer']['final_answer']}")
     except KeyError:
         print(f"Answer: {event['off_topic_response']['final_answer']}")
@@ -199,8 +199,7 @@ def chunk_document(
     semantic_chunking: bool = False,
     buffer_size: int = 1,
     breakpoint_percentile_threshold: int = 95,
-    embed_model: HuggingFaceEmbedding = HuggingFaceEmbedding(
-        model_name="Snowflake/snowflake-arctic-embed-l-v2.0")):
+    embed_model: Optional[HuggingFaceEmbedding] = None):
 
     if not semantic_chunking:
         splitter = SentenceSplitter(
@@ -210,6 +209,8 @@ def chunk_document(
             paragraph_separator=paragraph_separator,
             include_metadata=True)
     else:
+        if embed_model is None:
+            embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
         splitter = SemanticSplitterNodeParser(
             buffer_size=buffer_size,
             breakpoint_percentile_threshold=breakpoint_percentile_threshold,
