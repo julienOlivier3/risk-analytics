@@ -1,21 +1,21 @@
 # Advanced Risk Analytics in Python
 
 ## Overview
-This repository hosts the source code of the **Advanced Risk Analytics in Python** course! The course is designed to equip participants with practical skills and knowledge in the application of Machine Learning (ML) and Natural Language Processing (NLP) within the context of quantitative risk management. As a hands-on course, the course will cover a range of methods and use cases relevant to risk assessment and management in the financial services and insurance industries.
+This repository hosts the source code of the **Advanced Risk Analytics in Python** course. The course is designed to equip participants with practical skills and knowledge in the application of Machine Learning (ML), Natural Language Processing (NLP) and Generative AI (GenAI) within the context of quantitative risk management. As a hands-on seminar, the course will cover a range of methods and use cases relevant to practitioners in the field of Risk and Finance.
 
 ## Course Structure
 
 ### Part 1: Introduction to Concepts and Methods
 
-#### [Day 1: Machine Learning and Risk Modelling](day1_ml.ipynb)
+#### [Day 1: Machine Learning and Risk Modelling](1_ml/ml.ipynb)
 Participants will learn key ML concepts and algorithms, including:
 - **ML pipelines**
 - **Tree-based ML algorithms** (e.g., Regression Tree, Random Forest, Gradient Boosting)
 - **Model training and model inference**
 
-The focus will be on practical programming exercises that assess credit and market risks using popular Python libraries such as **scikit-learn** and **pandas**. The goal is to understand how machine learning can add value in quantitatively assess risks that organizations operating under uncertainty are facing.
+The focus will be on a step-by-step process of modelling risks and predicting future uncertain outcomes using popular Python libraries such as **scikit-learn** and **pandas**. The concrete use case looks into the uncertainty of what a leased out car can be resold at the end of the lease term, a typical risk faced by car leasing entities. The goal is to understand how machine learning can add value in quantitatively assess risks that organizations operating under uncertainty are facing.
 
-#### [Day 2: Natural Language Processing and Risk Assessment](day2_nlp.ipynb)
+#### [Day 2: Natural Language Processing and Risk Assessment](2_nlp/nlp.ipynb)
 This session will cover NLP techniques relevant to the insurance sector, including:
 - **Text Vectorization** (e.g., TF-IDF, word embeddings)
 - **Text Classification**
@@ -23,13 +23,13 @@ This session will cover NLP techniques relevant to the insurance sector, includi
 
 Participants will explore how these techniques can enhance policy processing and risk assessment of claims in the insurance industry.
 
-#### [Day 3 (optional): Generative AI and Multi-Document Risk Agents](day3_genai.ipynb)
+#### [Day 3: Generative AI and Risk Agents](2_genai/genai.ipynb)
 On the third day, participants will explore the cutting-edge field of Generative AI (GenAI) and its applications in risk analytics. The focus will be on building a Multi-Document Risk Agent, a conversational AI system that allows users to interact with and extract insights from annual reports of publicly listed companies. This session will cover:
 - Introduction to **Generative AI** and **Large Language Models** (LLMs)
 - **Retrieval-Augmented Generation** (RAG)
 - The concept of **agents**
 
-By the end of the day, participants will have a working understanding of how to leverage GenAI, LLMs, and RAG to create advanced tools for risk management and decision-making using popular Python frameworks such as **LlamaIndex**.
+By the end of the day, participants will have a working understanding of how to leverage GenAI, LLMs, and RAG to create advanced tools for risk management and decision-making using popular Python frameworks such as **LlamaIndex**, **LangChain** and **LangGraph**.
 
 ### Part 2: Take-Home Assignment
 After the introductory sessions, participants will work on a practical problem from the insurance industry using public claims data. They will apply the methods learned to evaluate whether and under what constraints the problem can be solved. Participants will have **2-4 weeks** to complete this assignment and will present their findings in a **short presentation** during a follow-up session lasting **1-2 days** (depending on the number of participants).

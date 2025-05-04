@@ -1,0 +1,11 @@
+region,year,manufacturer,model,condition,cylinders,fuel,odometer,transmission,VIN,drive,type,paint_color,state,posting_date
+new hampshire,2015.0,jeep,grand cherokee,,,gas,45713.0,automatic,1C4RJFAG5FC732019,4wd,SUV,white,nh,2021-04-23
+albuquerque,2017.0,gmc,sierra 2500 slt,,8 cylinders,other,108735.0,automatic,1GT12TEY9HF247895,4wd,pickup,red,nm,2021-04-30
+grand rapids,2015.0,ford,f350,excellent,8 cylinders,gas,61000.0,automatic,1FT8W3BT2FED12827,4wd,truck,white,mi,2021-04-20
+fairbanks,2019.0,dodge,challenger,good,,gas,15710.0,automatic,2C3CDZGG0KH628068,,coupe,,ak,2021-04-16
+reno / tahoe,2010.0,subaru,outback,good,4 cylinders,gas,131088.0,automatic,,4wd,,grey,ca,2021-04-26
+chicago,2014.0,,NISSA SENTRA,excellent,,gas,96144.0,automatic,,,,,il,2021-04-30
+baltimore,2011.0,honda,cr-v,,,gas,127277.0,automatic,5J6RE3H30BL031236,fwd,,green,md,2021-05-03
+birmingham,2017.0,hyundai,santa fe sport,,,gas,83636.0,automatic,5NMZU4LA7HH043317,fwd,,white,al,2021-04-09
+fayetteville,2012.0,honda,accord,excellent,,gas,90712.0,automatic,1HGCP3F82CA005479,fwd,sedan,white,nc,2021-04-30
+springfield,2016.0,mazda,mx-5 miata,,,gas,12525.0,automatic,,rwd,convertible,,mo,2021-04-09

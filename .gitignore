@@ -1,6 +1,8 @@
-data/raw
+*/data/raw
 __pycache__/
 .env
 .vscode
-data/
 .ipynb_checkpoints/
+.jupyter
+contents/
+.venv
