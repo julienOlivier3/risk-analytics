@@ -55,9 +55,9 @@ def print_vector(
     dimension = rounded_vector.shape[0]
 
     # Add the first three elements
-    formatted_vector.extend(rounded_vector[:3])
+    formatted_vector.extend(vector[:3].round(3))
 
-    if len(non_zero_indices) == len(vector):
+    if (len(non_zero_indices) == len(vector)) or len(non_zero_indices) == 0:
         formatted_vector.append("...")
     else:
         # Add ellipsis if there are elements between the first three and the first non-zero
@@ -68,14 +68,14 @@ def print_vector(
         for i, idx in enumerate(non_zero_indices):
             if i > 0 and idx > non_zero_indices[i - 1] + 1:
                 formatted_vector.append("...")
-            formatted_vector.append(rounded_vector[idx])
+            formatted_vector.append(vector[idx].round(3))
 
         # Add ellipsis if there are elements between the last non-zero and the last three
         if non_zero_indices.size > 0 and non_zero_indices[-1] < dimension - 4:
             formatted_vector.append("...")
 
     # Add the last three elements
-    formatted_vector.extend(rounded_vector[-3:])
+    formatted_vector.extend(vector[-3:].round(3))
 
     # Create the output string with dimension as subscript
     output = f"{string}x<sub>(1x{dimension})</sub> = [{' '.join(map(str, formatted_vector))}]"
