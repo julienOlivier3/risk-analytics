@@ -30,11 +30,11 @@ def main():
         st.markdown("Uploaded Data Preview:")
         st.dataframe(df_input.head())
 
-        # Tick which columns to use for topic modelling
-        st.write("### 2. Select columns for topic modelling")
+        # Tick which columns to use for topic modeling
+        st.write("### 2. Select columns for topic modeling")
         options = df_input.columns.tolist()
         selected_columns = st.multiselect(
-            "Select columns to use for topic modelling", options)
+            "Select columns to use for topic modeling", options)
 
     # Predict button
     if st.button("Create Clusters"):
@@ -48,7 +48,7 @@ def main():
         try:
             topics, probs = topic_model.transform(df_input['Claim'].values)
         except Exception as e:
-            st.error(f"Error during topic modelling: {e}")
+            st.error(f"Error during topic modeling: {e}")
 
         # Combine clusters with original data
         df_input['Topic'] = topics

@@ -45,7 +45,7 @@ async def check_health():
 @app.post("/v1/cluster")
 async def create_cluster(input_data: Claim):
     # Preprocess the data
-    input_dict = input_data.model_dump()  # Corrected: No 'mode' argument
+    input_dict = input_data.model_dump()
     df_inference = pd.DataFrame([input_dict])
 
     # Perform clustering

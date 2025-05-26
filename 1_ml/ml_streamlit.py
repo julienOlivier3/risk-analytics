@@ -39,20 +39,53 @@ def main():
 
         # Example expected feature names (replace with your actual feature names)
         expected_features = {
-            'manufacturer': 'The company that produces the vehicle, which can influence brand value and perceived reliability. **Example:** Toyota is often associated with reliability, which may enhance resale value.',
-            'model': 'The specific name or designation of the vehicle, which can affect its market demand and resale value. **Example:** The Honda Civic is a popular model known for its fuel efficiency and reliability.',
-            'type': 'The category of the vehicle, such as sedan, SUV, truck, etc., which impacts its utility and desirability. **Example:** An SUV like the Ford Explorer may have a higher residual value due to its popularity in family transport.',
-            'odometer': 'The total distance the vehicle has traveled, measured in miles or kilometers, which is a key factor in determining wear and tear. **Example:** A vehicle with 30,000 miles is generally perceived to have less wear compared to one with 100,000 miles.',
-            'year': 'The model year of the vehicle, indicating its age and often correlating with technological advancements and features. **Example:** A 2020 model may have advanced safety features not available in a 2015 model.',
-            'fuel': 'The type of fuel the vehicle uses, such as gasoline, diesel, or electric, which can affect operating costs and environmental impact. **Example:** An electric vehicle like the Tesla Model 3 may retain value better due to growing interest in sustainability.',
-            'transmission': "The type of transmission system (automatic or manual) that can influence driving experience and maintenance costs. **Example:** Automatic transmissions are often preferred in urban settings, potentially increasing the vehicle's resale appeal.",
-            'cylinders': 'The number of cylinders in the engine, which can affect performance, fuel efficiency, and insurance costs. **Example:** A V6 engine in a Chevrolet Silverado may offer a balance of power and fuel efficiency that appeals to truck buyers.',
-            'drive': 'The drivetrain configuration (e.g., front-wheel drive, rear-wheel drive, all-wheel drive) that impacts handling and traction. **Example:** All-wheel drive vehicles are often more desirable in regions with harsh winters, like the Subaru Outback.',
-            'paint_color': "The color of the vehicle's exterior, which can influence buyer preferences and resale value due to trends in popularity. **Example:** Neutral colors like white or gray are generally more popular and may sell for a higher price compared to less common colors like bright green."}
+            'manufacturer': """The company that produces the vehicle, which can influence brand value and perceived
+                reliability. **Example:** Toyota is often associated with reliability,
+                which may enhance resale value.""",
+            'model': """The specific name or designation of the vehicle, which can affect
+                its market demand and resale value. **Example:** The Honda Civic is
+                a popular model known for its fuel efficiency and reliability.""",
+            'type': """The category of the vehicle, such as sedan, SUV, truck,
+                etc., which impacts its utility and desirability. **Example:** An
+                SUV like the Ford Explorer may have a higher residual value due
+                to its popularity in family transport.""",
+            'odometer': """The total distance the vehicle has traveled, measured in
+                miles or kilometers, which is a key factor in determining wear and tear.
+                **Example:** A vehicle with 30,000 miles is generally perceived to have
+                less wear compared to one with 100,000 miles.""",
+            'year': """The model year of the vehicle, indicating its age and often
+                correlating with technological advancements and features.
+                **Example:** A 2020 model may have advanced safety
+                features not available in a 2015 model.""",
+            'fuel': """The type of fuel the vehicle uses, such as gasoline,
+                diesel, or electric, which can affect operating costs and environmental
+                impact. **Example:** An electric vehicle like the Tesla Model 3 may
+                retain value better due to growing interest in sustainability.""",
+            'transmission': """The type of transmission system (automatic or manual)
+                that can influence driving experience and maintenance costs. **Example:**
+                Automatic transmissions are often preferred in urban settings,
+                potentially increasing the vehicle's resale appeal.""",
+            'cylinders': """The number of cylinders in the engine, which can affect
+                performance, fuel efficiency, and insurance costs. **Example:** A V6 engine
+                in a Chevrolet Silverado may offer a balance of power and fuel efficiency
+                that appeals to truck buyers.""",
+            'drive': """The drivetrain configuration (e.g., front-wheel drive,
+                rear-wheel drive, all-wheel drive) that impacts handling and traction.
+                **Example:** All-wheel drive vehicles are often more desirable in
+                regions with harsh winters, like the Subaru Outback.""",
+            'paint_color': """The color of the vehicle's exterior, which can influence
+                buyer preferences and resale value due to trends in popularity. **Example:**
+                Neutral colors like white or gray are generally more popular and may sell
+                for a higher price compared to less common colors like bright green."""}
         column_mapping = {}
 
         for feature, description in expected_features.items():
-            column_mapping[feature] = st.text_input(f"Column name for {feature.capitalize()}:", value=feature, key=feature, help=description, label_visibility="visible")
+            column_mapping[feature] = st.text_input(
+                f"Column name for {feature.capitalize()}:",
+                value=feature,
+                key=feature,
+                help=description,
+                label_visibility="visible")
 
         # Predict button
         if st.button("Predict"):

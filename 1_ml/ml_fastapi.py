@@ -161,15 +161,16 @@ class InputData(BaseModel):
     paint_color: Optional[PaintColor] = None
     VIN: Optional[str] = None
 
+
 input_data = InputData(
     manufacturer='toyota',
     odometer=100000,
     year=2010,
     posting_date=date.today() + timedelta(days=1),
-    cylinders='6 cylinders', 
+    cylinders='6 cylinders',
     model='camry',
     type='sedan',
-    fuel='gas', 
+    fuel='gas',
     transmission='automatic',
     drive='fwd',
     paint_color='black',
