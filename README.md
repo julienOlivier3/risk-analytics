@@ -7,21 +7,20 @@ This repository hosts the source code of the **Advanced Risk Analytics in Python
 
 ### Part 1: Introduction to Concepts and Methods
 
-#### [Day 1: Machine Learning and Risk Modelling](1_ml/ml.ipynb)
+#### [Day 1: Machine Learning and Risk Modeling](1_ml/ml.ipynb)
 Participants will learn key ML concepts and algorithms, including:
 - **ML pipelines**
 - **Tree-based ML algorithms** (e.g., Regression Tree, Random Forest, Gradient Boosting)
 - **Model training and model inference**
 
-The focus will be on a step-by-step process of modelling risks and predicting future uncertain outcomes using popular Python libraries such as **scikit-learn** and **pandas**. The concrete use case looks into the uncertainty of what a leased out car can be resold at the end of the lease term, a typical risk faced by car leasing entities. The goal is to understand how machine learning can add value in quantitatively assess risks that organizations operating under uncertainty are facing.
+The focus will be on a step-by-step process of modeling risks and predicting future uncertain outcomes using popular Python libraries such as **scikit-learn** and **pandas**. The concrete use case looks into the uncertainty of what a leased out car can be resold at the end of the lease term, a typical risk faced by car leasing entities. The goal is to understand how machine learning can add value in quantitatively assess risks that organizations operating under uncertainty are facing.
 
-#### [Day 2: Natural Language Processing and Risk Assessment](2_nlp/nlp.ipynb)
-This session will cover NLP techniques relevant to the insurance sector, including:
-- **Text Vectorization** (e.g., TF-IDF, word embeddings)
-- **Text Classification**
-- **Semantic Search**
+#### [Day 2: Natural Language Processing and Risk Clustering](2_nlp/nlp.ipynb)
+This session will cover NLP techniques and their evolution in recent years, including:
+- **Text Vectorization** (e.g., tf-idf, word embeddings)
+- **Text Clustering** via topic modeling
 
-Participants will explore how these techniques can enhance policy processing and risk assessment of claims in the insurance industry.
+Participants will explore how these techniques can enhance policy processing and categorization of claims in the insurance industry. While the use case is specific to insurers, the techniques can be easily adapted to other use cases and industries where professionals are facing unstructured text data.
 
 #### [Day 3: Generative AI and Risk Agents](2_genai/genai.ipynb)
 On the third day, participants will explore the cutting-edge field of Generative AI (GenAI) and its applications in risk analytics. The focus will be on building a Multi-Document Risk Agent, a conversational AI system that allows users to interact with and extract insights from annual reports of publicly listed companies. This session will cover:
