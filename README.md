@@ -1,11 +1,11 @@
 # Advanced Risk Analytics in Python
 
 ## Overview
-This repository hosts the source code of the **Advanced Risk Analytics in Python** course. The course is designed to equip participants with practical skills and knowledge in the application of Machine Learning (ML), Natural Language Processing (NLP) and Generative AI (GenAI) within the context of quantitative risk management. As a hands-on seminar, the course will cover a range of methods and use cases relevant to practitioners in the field of Risk and Finance.
+This repository hosts the source code of the **Advanced Risk Analytics in Python** course. The course is designed to equip participants with practical skills and knowledge in the field of Artificial Intelligence (AI). Overall, the course consists of three independent modules focusing on the application of Machine Learning (ML), Natural Language Processing (NLP) and Generative AI (GenAI) within the context of quantitative risk management. As a hands-on seminar, the course will cover a range of methods and real world use cases relevant to practitioners in the field of Risk and Finance.
 
 ## Course Structure
 
-### Part 1: Introduction to Concepts and Methods
+### Part 1: Lecture Series
 
 #### [Day 1: Machine Learning and Risk Modeling](1_ml/ml.ipynb)
 Participants will learn key ML concepts and algorithms, including:
@@ -22,7 +22,7 @@ This session will cover NLP techniques and their evolution in recent years, incl
 
 Participants will explore how these techniques can enhance policy processing and categorization of claims in the insurance industry. While the use case is specific to insurers, the techniques can be easily adapted to other use cases and industries where professionals are facing unstructured text data.
 
-#### [Day 3: Generative AI and Risk Agents](2_genai/genai.ipynb)
+#### [Day 3: Generative AI and Risk Agents](3_genai/genai.ipynb)
 On the third day, participants will explore the cutting-edge field of Generative AI (GenAI) and its applications in risk analytics. The focus will be on building a Multi-Document Risk Agent, a conversational AI system that allows users to interact with and extract insights from annual reports of publicly listed companies. This session will cover:
 - Introduction to **Generative AI** and **Large Language Models** (LLMs)
 - **Retrieval-Augmented Generation** (RAG)
@@ -31,7 +31,7 @@ On the third day, participants will explore the cutting-edge field of Generative
 By the end of the day, participants will have a working understanding of how to leverage GenAI, LLMs, and RAG to create advanced tools for risk management and decision-making using popular Python frameworks such as **LlamaIndex**, **LangChain** and **LangGraph**.
 
 ### Part 2: Take-Home Assignment
-After the introductory sessions, participants will work on a practical problem from the insurance industry using public claims data. They will apply the methods learned to evaluate whether and under what constraints the problem can be solved. Participants will have **2-4 weeks** to complete this assignment and will present their findings in a **short presentation** during a follow-up session lasting **1-2 days** (depending on the number of participants).
+After the lecture sessions, participants will work on a practical problem from the insurance industry using public claims data. They will apply the methods learned to evaluate whether and under what constraints the problem can be solved. Participants will have **2-4 weeks** to complete this assignment and will present their findings in a **short presentation** during a follow-up session lasting **1-2 days** (depending on the number of participants).
 
 ## Materials and Resources
 All course materials will be provided via GitHub. Prior to the seminar, participants will receive introductory slides explaining Git and GitHub, along with setup instructions to ensure everyone is well-prepared and can seamlessly engage with the course content.
