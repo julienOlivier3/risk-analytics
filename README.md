@@ -34,13 +34,13 @@ By the end of the day, participants will have a working understanding of how to 
 After the lecture sessions, participants will work on a practical problem. They will apply the methods learned to evaluate whether and under what constraints a specific real world problem can be solved. Participants will have **2-4 weeks** to complete this assignment and will present their findings in a **short presentation** during a follow-up session lasting **1-2 days** (depending on the number of participants).
 
 ## Materials and Resources
-All course materials will be provided via GitHub. Prior to the seminar, participants will receive introductory slides explaining Git and GitHub, along with setup instructions to ensure everyone is well-prepared and can seamlessly engage with the course content.
+All course materials will be provided via GitHub. Prior to the seminar, participants will receive introductory slides explaining Git and GitHub, along with setup instructions to ensure everyone is well-prepared and participants can seamlessly engage with the course content.
 
 ## Prerequisites
 Participants should have **sound knowledge of Python programming**. This foundational skill is crucial for effectively following the course materials. Prior to enrollment of the course, students will get access to a short Python quiz which they can use as a self-assessment for their level of Python knowledge. It is generally recommended to enroll in the course only if you feel comfortable doing the quiz. Otherwise it is likely that you have a hard time following the course material.
 
 ### Technical Setup-up
-1. Install [python](https://www.python.org/downloads/release/python-3120/) on your local machine
+1. Install [python 12](https://www.python.org/downloads/release/python-3120/) on your local machine
 1. Install [git](https://git-scm.com/downloads) on your local machine
 1. Clone this repository on your local machine using git
     `git clone https://github.com/julienOlivier3/risk-analytics.git`

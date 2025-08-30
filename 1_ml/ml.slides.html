@@ -7621,8 +7621,6 @@ all of MD as it is not optimized for dense, information rich UIs.
             <center> <small style="color: white;">by <a style="color: white;" href="https://juliandoerr.com">Julian Dörr</a></small>
             </center>
           </section>
-        </section>
-        <section>
           <section>
             <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
               <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -7771,7 +7769,7 @@ all of MD as it is not optimized for dense, information rich UIs.
                     </div>
                     <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
                       <ul>
-                        <li><strong>ML Pipeline</strong>: Automate the inference process of applying the ML model.</li>
+                        <li><strong>ML Pipeline</strong>: Automate the inference process for applying the ML model.</li>
                       </ul>
                     </div>
                   </div>
@@ -7779,8 +7777,6 @@ all of MD as it is not optimized for dense, information rich UIs.
               </div>
             </div>
           </section>
-        </section>
-        <section>
           <section>
             <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
               <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -7896,8 +7892,6 @@ all of MD as it is not optimized for dense, information rich UIs.
               </div>
             </div>
           </section>
-        </section>
-        <section>
           <section>
             <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
               <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -7913,17 +7907,19 @@ all of MD as it is not optimized for dense, information rich UIs.
                 </div>
               </div>
             </div>
-            <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-              <div class="jp-Cell-inputWrapper" tabindex="0">
-                <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-                </div>
-                <div class="jp-InputArea jp-Cell-inputArea">
-                  <div class="jp-InputPrompt jp-InputArea-prompt">
+            <div class="fragment">
+              <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+                <div class="jp-Cell-inputWrapper" tabindex="0">
+                  <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
                   </div>
-                  <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-                    <p>Machine Learning (ML) has become an essential tool in <strong>risk management</strong> due to its ability to <strong>analyze vast amounts of data</strong>
-                      and <strong>uncover patterns that traditional methods may overlook</strong>. In today's complex financial landscape, organizations face numerous risks, and ML
-                      provides a robust framework for modeling and steering these risks effectively.</p>
+                  <div class="jp-InputArea jp-Cell-inputArea">
+                    <div class="jp-InputPrompt jp-InputArea-prompt">
+                    </div>
+                    <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+                      <p>Machine Learning (ML) has become an essential tool in <strong>risk management</strong> due to its ability to <strong>analyze vast amounts of data</strong>
+                        and <strong>uncover patterns that traditional methods may overlook</strong>. In today's complex financial landscape, organizations face numerous risks, and
+                        ML provides a robust framework for modeling and steering these risks effectively.</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -8056,8 +8052,7 @@ all of MD as it is not optimized for dense, information rich UIs.
                     <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
                       <p>In the following, we will work on a real-world use case that <strong>car leasing entities</strong> typically face. It is the risk associated with the
                         <strong>uncertainty of what a leased out car can be resold at</strong> when the car returns to the leasing entity. This asset risk is commonly known as
-                        residual value risk.
-                      </p>
+                        residual value risk.</p>
                     </div>
                   </div>
                 </div>
@@ -8137,16 +8132,13 @@ all of MD as it is not optimized for dense, information rich UIs.
                     <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
                       <p>The residual value of a vehicle is determined by various factors, including its <strong>condition</strong> (age, mileage, and damage), shifting
                         <strong>customer preferences</strong>, <strong>economic fluctuations</strong>, <strong>market transparency</strong>, advancements in
-                        <strong>technology</strong> (like electric vehicles), and <strong>regulatory uncertainties</strong>, making accurate predictions challenging.
-                      </p>
+                        <strong>technology</strong> (like electric vehicles), and <strong>regulatory uncertainties</strong>, making accurate predictions challenging.</p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </section>
-        </section>
-        <section>
           <section>
             <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
               <div class="jp-Cell-inputWrapper" tabindex="0">
@@ -9032,8 +9024,7 @@ dtype: object</pre>
                   </div>
                   <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
                     <p>Alternatively, we can visualize the univariate distribution of each variable. To facilitate this, I have provided a convenient function called
-                      <code>plot_univariate()</code>, which can be found in the <a href="util.py">util.py</a> module.
-                    </p>
+                      <code>plot_univariate()</code>, which can be found in the <a href="util.py">util.py</a> module.</p>
                   </div>
                 </div>
               </div>
@@ -9290,8 +9281,7 @@ dtype: object</pre>
                   <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
                     <p>We <strong>split the data at random into training and test sets</strong> using the <code>train_test_split()</code> method from the popular
                       <code>scikit-learn</code> library that provides a wide range of ML algorithms and other convenience functions that are typically used in ML pipelines. We will
-                      <strong>keep 20% of the data aside</strong> in the test set. For reproducibility we set a seed via the <code>random_state</code> argument.
-                    </p>
+                      <strong>keep 20% of the data aside</strong> in the test set. For reproducibility we set a seed via the <code>random_state</code> argument.</p>
                   </div>
                 </div>
               </div>
@@ -9891,8 +9881,7 @@ dtype: int64</pre>
                     </div>
                     <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
                       <p>We now impute the missing odometer with the most similar used cars in terms of vehicle age. For this purpose, we use <code>scikit-learn</code>'s
-                        <code>KNNImputer</code> class.
-                      </p>
+                        <code>KNNImputer</code> class.</p>
                     </div>
                   </div>
                 </div>
@@ -10176,8 +10165,7 @@ dtype: int64</pre>
                   </div>
                   <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
                     <p>Further feature engineering involves <strong>creating new features</strong> to enhance a model's predictive power. For instance, we have derived the
-                      <strong>age</strong> feature from the manufacturing year and the posting date of the used car.
-                    </p>
+                      <strong>age</strong> feature from the manufacturing year and the posting date of the used car.</p>
                   </div>
                 </div>
               </div>
@@ -10637,8 +10625,7 @@ dtype: int64</pre>
                     </div>
                     <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
                       <p>In this course we focus on <strong>tree-based models</strong>. The basic building block, also known as base learner, in a tree-based model is a
-                        <strong>Decision Tree</strong>.
-                      </p>
+                        <strong>Decision Tree</strong>.</p>
                     </div>
                   </div>
                 </div>
@@ -10692,8 +10679,7 @@ dtype: int64</pre>
                   </div>
                   <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
                     <p>In the following, we train a simple decision tree using <code>DecisionTreeRegressor</code> from <code>scikit-learn</code>. With the the arguments
-                      <code>max_depth</code> and <code>min_samples_split</code> we control the complexity of the final tree:
-                    </p>
+                      <code>max_depth</code> and <code>min_samples_split</code> we control the complexity of the final tree:</p>
                     <ul>
                       <li><code>max_depth</code>: The maximum number of subsequent binary splits, i.e. how large the tree is allowed to get</li>
                       <li><code>min_samples_split</code>: The minimum number of samples that need to be in a terminal leaf</li>
@@ -10817,8 +10803,7 @@ dtype: int64</pre>
                         <strong>70,976 miles or less</strong> moving left and those with <strong>more than 70,976 miles</strong> moving right. For vehicles under the mileage
                         threshold, <strong>4-cylinder engines</strong> average <strong>$19,877</strong>, while other engine types average <strong>$32,813</strong>; for those above
                         the threshold, <strong>diesel engines</strong> average <strong>$32,553</strong>, compared to <strong>$12,411</strong> for <strong>non-diesel
-                          engines</strong>.
-                      </p>
+                          engines</strong>.</p>
                     </div>
                   </div>
                 </div>
@@ -11371,8 +11356,7 @@ dtype: int64</pre>
                     <p>Important aspects of fine-tuning ML models:</p>
                     <ul>
                       <li><strong>Prevent Overfitting</strong>: The goal is to find hyperparameters that generalize well to unseen data rather than just fitting the training data.
-                        <strong>Cross-validation</strong> is essential for assessing model performance on independent datasets and selecting optimal hyperparameters.
-                      </li>
+                        <strong>Cross-validation</strong> is essential for assessing model performance on independent datasets and selecting optimal hyperparameters.</li>
                       <li><strong>Computational Efficiency</strong>: Testing all combinations of hyperparameters can be computationally expensive, so methods like <strong>Grid
                           Search</strong> or <strong>Random Search</strong> are used to efficiently approximate the best hyperparameter configuration.</li>
                     </ul>
@@ -11461,8 +11445,7 @@ dtype: int64</pre>
                   </div>
                   <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
                     <p>We will now implement <strong>3-fold cross-validation using a Random Search strategy</strong> to identify the optimal hyperparameters. We will use
-                      <code>RandomizedSearchCV</code> to do so.
-                    </p>
+                      <code>RandomizedSearchCV</code> to do so.</p>
                   </div>
                 </div>
               </div>
@@ -11671,8 +11654,7 @@ Best parameters: {'learning_rate': 0.2, 'max_depth': 15, 'max_features': 'sqrt',
                       <p>It is good practice to put all steps of data preprocessing, feature engineering and model training into a pipeline. This encapsulation helps ensure that
                         <strong>all steps are executed in the correct order</strong> not only <strong>on</strong> the <strong>training data</strong> but also on the <strong>test
                           data</strong> <strong>and</strong> later on <strong>production data</strong>. We use the <code>Pipeline</code> class from <code>scikit-learn</code> for
-                        this purpose.
-                      </p>
+                        this purpose.</p>
                     </div>
                   </div>
                 </div>
@@ -13234,8 +13216,8 @@ clickable and can be expanded/collapsed.
                   <div class="jp-InputPrompt jp-InputArea-prompt">
                   </div>
                   <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-                    <p>When we talk about <strong>deploying a model</strong>, we mean <strong>making a trained machine learning model available for use</strong>. This is like
-                      putting a finished product on a store shelf so that customers can buy it.</p>
+                    <p>When we talk about <strong>deploying a model</strong>, we mean <strong>making a trained machine learning model available for productive use</strong>. This is
+                      like putting a finished product on a store shelf so that customers can buy it.</p>
                   </div>
                 </div>
               </div>
